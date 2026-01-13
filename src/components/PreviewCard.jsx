@@ -471,7 +471,7 @@ function PreviewCard() {
         </div>
         <div className="flex items-center gap-2">
           <button className="px-2 py-1 text-xs font-tiktok-text text-[#6d6e70] hover:bg-[#f8f8f9] rounded">‹</button>
-          <span className="text-xs font-tiktok-text text-[#6d6e70]">1/5</span>
+          <span className="text-xs font-tiktok-text text-[#6d6e70]">1/2</span>
           <button className="px-2 py-1 text-xs font-tiktok-text text-[#6d6e70] hover:bg-[#f8f8f9] rounded">›</button>
         </div>
       </div>
