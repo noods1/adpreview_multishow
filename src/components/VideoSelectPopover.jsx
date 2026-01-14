@@ -20,8 +20,12 @@ function VideoSelectPopover({ value, onChange, onSelectionChange, className = ''
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedVideos, setSelectedVideos] = useState([1, 2, 3, 4]); // Default selected
+  const [hoveredDisabledId, setHoveredDisabledId] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const popoverRef = useRef(null);
   const buttonRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const itemRefs = useRef({});
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -39,7 +43,12 @@ function VideoSelectPopover({ value, onChange, onSelectionChange, className = ''
       document.addEventListener('mousedown', handleClickOutside);
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
+        // Hide tooltip when popover closes
+        setHoveredDisabledId(null);
       };
+    } else {
+      // Hide tooltip when popover is closed
+      setHoveredDisabledId(null);
     }
   }, [isOpen]);
 
@@ -70,6 +79,29 @@ function VideoSelectPopover({ value, onChange, onSelectionChange, className = ''
       onSelectionChange(selectedVideos);
     }
   }, []); // Only on mount to set initial state
+
+  // Update tooltip position on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (hoveredDisabledId && itemRefs.current[hoveredDisabledId] && scrollContainerRef.current) {
+        const itemRect = itemRefs.current[hoveredDisabledId].getBoundingClientRect();
+        const containerRect = scrollContainerRef.current.getBoundingClientRect();
+        setTooltipPosition({
+          top: itemRect.top - containerRect.top - 8,
+          left: itemRect.left - containerRect.left + itemRect.width / 2,
+        });
+      }
+    };
+
+    if (scrollContainerRef.current && hoveredDisabledId) {
+      scrollContainerRef.current.addEventListener('scroll', handleScroll);
+      return () => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.removeEventListener('scroll', handleScroll);
+        }
+      };
+    }
+  }, [hoveredDisabledId]);
 
   const selectedCount = selectedVideos.length;
   const displayText = selectedCount > 0 ? `${selectedCount} videos selected` : 'Select videos';
@@ -115,7 +147,7 @@ function VideoSelectPopover({ value, onChange, onSelectionChange, className = ''
           </div>
 
           {/* Video list */}
-          <div className="max-h-[300px] overflow-y-auto">
+          <div ref={scrollContainerRef} className="max-h-[300px] overflow-y-auto relative">
             {filteredVideos.map((video) => {
               const isSelected = selectedVideos.includes(video.id);
               const isMaxSelected = selectedVideos.length >= 4;
@@ -123,8 +155,29 @@ function VideoSelectPopover({ value, onChange, onSelectionChange, className = ''
               return (
                 <div
                   key={video.id}
+                  ref={(el) => (itemRefs.current[video.id] = el)}
                   onClick={() => !isDisabled && handleToggleVideo(video.id)}
-                  className={`flex items-center gap-2 px-3 py-2 ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#f8f8f9] cursor-pointer'}`}
+                  onMouseEnter={(e) => {
+                    if (isDisabled) {
+                      setHoveredDisabledId(video.id);
+                      if (itemRefs.current[video.id] && scrollContainerRef.current) {
+                        const itemRect = itemRefs.current[video.id].getBoundingClientRect();
+                        const containerRect = scrollContainerRef.current.getBoundingClientRect();
+                        // Calculate position relative to scroll container
+                        // getBoundingClientRect already accounts for scroll, so we just need relative offset
+                        setTooltipPosition({
+                          top: itemRect.top - containerRect.top - 8, // 8px above item
+                          left: itemRect.left - containerRect.left + itemRect.width / 2, // Center of item
+                        });
+                      }
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (isDisabled) {
+                      setHoveredDisabledId(null);
+                    }
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 relative ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#f8f8f9] cursor-pointer'}`}
                 >
                   {/* Checkbox */}
                   <div className={`flex items-center justify-center w-4 h-4 rounded shrink-0 ${isSelected ? '' : 'border-2 border-[#d3d4d5]'}`} style={{ backgroundColor: isSelected ? '#009995' : 'white' }}>
@@ -141,6 +194,50 @@ function VideoSelectPopover({ value, onChange, onSelectionChange, className = ''
                 </div>
               );
             })}
+            
+            {/* Tooltip for disabled items */}
+            {hoveredDisabledId && (
+              <div
+                className="absolute z-[100] pointer-events-none"
+                style={{
+                  top: `${tooltipPosition.top}px`,
+                  left: `${tooltipPosition.left}px`,
+                  transform: 'translate(-50%, -100%)',
+                  marginTop: '-8px', // Space between tooltip and item
+                }}
+              >
+                {/* Tooltip content */}
+                <div
+                  className="bg-white rounded px-2 py-1.5 whitespace-nowrap relative"
+                  style={{
+                    boxShadow: '0px 0px 12px rgba(0, 0, 0, 0.12)',
+                  }}
+                >
+                  <p
+                    className="font-tiktok-text font-normal text-[#121212] text-center"
+                    style={{
+                      fontSize: '12px',
+                      lineHeight: '16px',
+                      letterSpacing: '0.1608px', // 1.34% of 12px
+                    }}
+                  >
+                    You can only select 4 videos at a time.
+                  </p>
+                  {/* Arrow pointing down (toward the item) */}
+                  <div
+                    className="absolute top-full left-1/2 -translate-x-1/2"
+                    style={{
+                      width: 0,
+                      height: 0,
+                      borderLeft: '6px solid transparent',
+                      borderRight: '6px solid transparent',
+                      borderTop: '6px solid white',
+                      filter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.12))',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
