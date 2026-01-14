@@ -5,6 +5,7 @@ import ProductDetailsCard from './components/ProductDetailsCard'
 import CreateAdsForm from './components/CreateAdsForm'
 import PreviewCard from './components/PreviewCard'
 import RightRail from './components/RightRail'
+import Watermark from './components/Watermark'
 
 function App() {
   return (
@@ -14,8 +15,9 @@ function App() {
         <div className="fixed left-0 top-[60px] bottom-0 w-[250px] bg-white border-r border-gray-200 overflow-y-auto">
           <LeftRail />
         </div>
-        <div className="flex-1 ml-[250px] bg-[#F8F8F9]">
-          <div className="flex justify-center w-full py-8">
+        <div className="flex-1 ml-[250px] bg-[#F8F8F9] relative">
+          <Watermark />
+          <div className="flex justify-center w-full py-8 relative z-10">
             <div className="flex gap-4">
               {/* Left Rail - 740px */}
               <div className="w-[740px]">

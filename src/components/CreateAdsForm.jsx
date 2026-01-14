@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Select from './Select';
 import Button from './Button';
-import petcoAvatar from '../assets/createads/petco-avatar.png';
+import placeholder from '../assets/preview/placeholder.png';
 
 // Simple help icon component
 function HelpIcon({ size = 16 }) {
@@ -16,7 +16,7 @@ function HelpIcon({ size = 16 }) {
 function CreateAdsForm() {
   const [destinationUrl, setDestinationUrl] = useState('');
   const [adText, setAdText] = useState('');
-  const [identity, setIdentity] = useState('Petco');
+  const [identity, setIdentity] = useState('Peacock');
   const [doNotCreatePost, setDoNotCreatePost] = useState(false);
   const [interactiveAddOns, setInteractiveAddOns] = useState(true);
 
@@ -150,11 +150,15 @@ function CreateAdsForm() {
             <div className="bg-[#ececed] border-0 border-[#d3d4d5] border-solid flex gap-2 items-center px-3 py-2 relative rounded shrink-0 w-full">
               <div className="basis-0 flex flex-row grow items-center self-stretch shrink-0">
                 <div className="basis-0 flex gap-2 grow h-full items-center min-h-px min-w-px relative shrink-0">
-                  <div className="flex gap-2 items-center relative shrink-0 size-5">
-                    <img alt="Petco" className="block max-w-none size-full" height="20" src={petcoAvatar} width="20" />
+                  <div className="bg-black overflow-clip relative rounded-[16.384px] shrink-0 size-5">
+                    <div className="absolute left-1/2 size-[15.019px] top-[calc(50%-0.34px)] translate-x-[-50%] translate-y-[-50%]">
+                      <div className="absolute inset-[-13.64%_-18.18%_-22.73%_-18.18%]">
+                        <img alt="Peacock" className="block max-w-none size-full" height="20.48" src={placeholder} width="20.48" />
+                      </div>
+                    </div>
                   </div>
                   <div className="basis-0 flex flex-col font-tiktok-text font-normal grow justify-center leading-0 min-h-px min-w-px overflow-ellipsis overflow-hidden relative shrink-0 text-sm text-[#121415] text-nowrap tracking-[0.0938px]">
-                    <p className="leading-5 overflow-ellipsis overflow-hidden">Petco</p>
+                    <p className="leading-5 overflow-ellipsis overflow-hidden">Peacock</p>
                   </div>
                 </div>
                 <div className="relative shrink-0 size-4">
